@@ -2,6 +2,7 @@ package com.asem.photomangment;
 
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -49,6 +50,7 @@ import java.util.concurrent.Executor;
 public class ImageCaputureClass extends AppCompatActivity {
    private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     FloatingActionButton takePhoto;
+    FloatingActionButton back;
     PreviewView previewView;
     private static final int REQUEST_CAMERA_PERMISSION = 1;
 
@@ -58,9 +60,18 @@ public class ImageCaputureClass extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_capture_class);
-     takePhoto = findViewById(R.id.button_capture);
-
+        takePhoto = findViewById(R.id.button_capture);
+        back = findViewById(R.id.btn_back);
         previewView= findViewById(R.id.previewView);
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ImageCaputureClass.this , MainActivity.class);
+                startActivity(intent);
+
+            }
+        });
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);

@@ -2,14 +2,11 @@ package com.asem.photomangment;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +29,13 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView imagesRV;
     FloatingActionButton camera;
     private RecyclerViewAdapter imageRVAdapter;
+    private BroadcastReceiver photosChangedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            imagePaths = new ArrayList<>();
+            getImagePath();
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,8 +46,9 @@ public class MainActivity extends AppCompatActivity {
         imagePaths = new ArrayList<>();
         imagesRV = findViewById(R.id.idRVImages);
 
-
         prepareRecyclerView();
+
+        requestPermissions();
 
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-   /* private boolean checkPermissions (){
+    private boolean checkPermissions (){
         int result = ActivityCompat.checkSelfPermission(MainActivity.this, READ_EXTERNAL_STORAGE);
 
         return result == PackageManager.PERMISSION_GRANTED;
@@ -67,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     {
         if (checkPermissions())
         {
-            Toast.makeText(this, "Permission granted.!!!!!! ", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Permission granted.!!!!!! ", Toast.LENGTH_SHORT).show();
             getImagePath();
         }
         else
@@ -77,12 +82,13 @@ public class MainActivity extends AppCompatActivity {
     private void requestPermission()
     {
         ActivityCompat.requestPermissions(this, new String[]{READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-    }*/
+    }
 
     private void prepareRecyclerView(){
         imageRVAdapter = new RecyclerViewAdapter(MainActivity.this , imagePaths);
         GridLayoutManager manager= new GridLayoutManager(MainActivity.this , 4);
         imagesRV.setLayoutManager(manager);
+        imageRVAdapter.notifyDataSetChanged();
         imagesRV.setAdapter(imageRVAdapter);
 
     }
@@ -111,13 +117,7 @@ public class MainActivity extends AppCompatActivity {
             cursor.close();
         }
     }
-    private BroadcastReceiver photosChangedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            imagePaths = new ArrayList<>();
-            getImagePath();
-        }
-    };
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -139,23 +139,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
-        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, load the photos into the RecyclerView
-                getImagePath();
-            } else {
-                // Permission denied, show a message to the user
-                Toast.makeText(this, "Permission denied to write to external storage", Toast.LENGTH_SHORT).show();
-            }
+       super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0) {
+                    boolean storageAccept = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    if (storageAccept) {
+                        Toast.makeText(this, "Permission Granted..", Toast.LENGTH_SHORT).show();
+                        getImagePath();
+                    } else
+                        Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+
+                }
+                break;
         }
-    }
 
+    }
 
 }
