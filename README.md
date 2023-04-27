@@ -8,5 +8,4 @@ that would get stored on their device. This is a very
 basic project but it would definitely help you in
 learning important concepts.
 
-Tools/ languages required – Android Studio, Java
-or Kotlin, CameraX library, and Picasso
+Tools/ languages required – Android Studio, Java, CameraX library, and Picasso
